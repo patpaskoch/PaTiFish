@@ -52,6 +52,14 @@ describe("Catch list and arrow keys (owner 2026-11-20)", function()
         assert.same({ "TOPLEFT", 300 }, { moved.catchWindow.point, moved.catchWindow.x })
     end)
 
+    it("an arrow key bound to Interact with Target stays the player's (owner 2026-11-20)", function()
+        local Logic = load()
+        assert.same({ UP = "PaTiFishCast", RIGHT = "PaTiFishLure", LEFT = "PaTiFishCatchesButton" },
+            Logic.ArrowBindings({ "DOWN" }))
+        assert.same(Logic.ARROW_KEYS, Logic.ArrowBindings({ "F", "SHIFT-F" }))
+        assert.same(Logic.ARROW_KEYS, Logic.ArrowBindings(nil))
+    end)
+
     it("arrow keys only with the pole in the hand, the setting on, not in test mode, not after /pfish hide", function()
         local Logic = load()
         local db = Logic.Migrate(nil)

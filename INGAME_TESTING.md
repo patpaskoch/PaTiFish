@@ -57,6 +57,11 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
 - [ ] PT-FISH-017 Angel in der Hand: Pfeil hoch = Auswerfen, rechts = Köder, links = Fänge auf/zu, runter = Waffen
   zurück; danach laufen die Pfeiltasten wieder normal (Figur bewegt sich); Einstellungen → Pfeiltasten aus → die
   Pfeile bewegen wieder die Figur, auch mit Angel; Tastenbelegung im WoW-Menü bleibt unverändert
+  - ❌ FAIL 2026-11-20
+  - Owner: „Mit Ziel interagieren“ liegt auf Pfeil runter; der Hinweis sagt „Pfeil runter drücken“, das holt aber
+    nicht ein (PaTiFish hatte die Taste mit „Waffen zurück“ belegt).
+  - 🔧 FIX IMPLEMENTED 2026-11-20 (eine Pfeiltaste, die auf „Mit Ziel interagieren“ liegt, bleibt frei und holt ein)
+  - MANUAL RETEST REQUIRED
 
 - [ ] PT-FISH-012 Fisch fangen → „Fänge“ zeigt ihn mit Anzahl; mehr fangen → Zahl steigt, meiste oben; bleibt nach
   `/reload`; volle Tasche (Fisch bleibt liegen) zählt nicht

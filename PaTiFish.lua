@@ -110,9 +110,24 @@ local function lureLeft(gear)
     return nil
 end
 
+-- The keys the player bound to "Interact with Target" (raw names, e.g. "DOWN"); never taken by the arrow keys.
+-- Read only while PaTiFish has no override bindings set (with them, an overridden key would no longer show up);
+-- the last reading is kept meanwhile.
+local savedInteractKeys = {}
+local overridesActive = false
+local function interactKeys()
+    if overridesActive or not GetBindingKey then return savedInteractKeys end
+    local keys = {}
+    for _, key in ipairs({ GetBindingKey("INTERACTTARGET") }) do
+        if type(key) == "string" and not isSecret(key) then keys[#keys + 1] = key end
+    end
+    savedInteractKeys = keys
+    return keys
+end
+
 local function interactKey()
-    local key = GetBindingKey and GetBindingKey("INTERACTTARGET")
-    if type(key) ~= "string" then return nil end
+    local key = interactKeys()[1]
+    if not key then return nil end
     return GetBindingText and GetBindingText(key) or key
 end
 
@@ -246,16 +261,20 @@ local TEST = { skill = { rank = 75, modifier = 25, max = 150 }, lure = 510, cast
 -- Arrow keys in fishing mode (owner-approved 2026-11-20, AGENTS.md): temporary override bindings owned by the bar —
 -- never saved, cleared as soon as the pole leaves the hand, the player hides the bar or turns the setting off.
 -- Up = cast, right = lure, left = catches, down = weapons back. Out of combat only (bindings are protected).
-local arrowsOn = false
+local arrowsSet = "" -- the bindings set now, as one string (only re-bound when it changes)
 applyArrowKeys = function(mainIsPole)
     if InCombatLockdown() or not SetOverrideBindingClick then return end
-    local want = Logic.ArrowKeysOn(DB, mainIsPole, testMode, hiddenByPlayer)
-    if want == arrowsOn then return end
+    local bindings = Logic.ArrowKeysOn(DB, mainIsPole, testMode, hiddenByPlayer)
+        and Logic.ArrowBindings(interactKeys()) or {}
+    local keys = {}
+    for key, button in pairs(bindings) do keys[#keys + 1] = key .. "=" .. button end
+    table.sort(keys)
+    local signature = table.concat(keys, ",")
+    if signature == arrowsSet then return end
     ClearOverrideBindings(window)
-    if want then
-        for key, button in pairs(Logic.ARROW_KEYS) do SetOverrideBindingClick(window, false, key, button) end
-    end
-    arrowsOn = want
+    for key, button in pairs(bindings) do SetOverrideBindingClick(window, false, key, button) end
+    arrowsSet = signature
+    overridesActive = signature ~= ""
 end
 
 -- Secure attributes: spell, lure macro, gear macro. Out of combat only; in combat they wait for the end.
@@ -610,7 +629,13 @@ window:SetMenu(function()
     }
 end)
 
-local function keyLine(key) return DB and DB.arrowKeys and L["ARROW_" .. key] or nil end
+local function keyLine(key)
+    if not DB or not DB.arrowKeys then return nil end
+    for _, reserved in ipairs(interactKeys()) do
+        if reserved:upper() == key then return nil end -- the player's Interact key stays theirs
+    end
+    return L["ARROW_" .. key]
+end
 UI.SetTooltip(cast, function() return { L.CAST, L.CAST_TIP, keyLine("UP") } end)
 UI.SetTooltip(lure, function()
     if not bestLure then return { L.APPLY_LURE, L.APPLY_LURE_NONE, keyLine("RIGHT") } end

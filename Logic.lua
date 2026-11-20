@@ -267,6 +267,18 @@ function Logic.AngleTo(dx, dy)
     return angle
 end
 
+-- The arrow bindings to set: Logic.ARROW_KEYS without the keys the player bound to something PaTiFish must not cover
+-- (owner 2026-11-20: "Interact with Target" on arrow down — that key reels in, it is never taken).
+function Logic.ArrowBindings(reserved)
+    local keep = {}
+    for _, key in ipairs(reserved or {}) do if type(key) == "string" then keep[key:upper()] = true end end
+    local list = {}
+    for key, button in pairs(Logic.ARROW_KEYS) do
+        if not keep[key] then list[key] = button end
+    end
+    return list
+end
+
 -- Arrow keys are taken only in fishing mode (pole in the hand, bar not hidden by the player), never in test mode.
 function Logic.ArrowKeysOn(db, mainIsPole, testMode, hiddenByPlayer)
     return db.arrowKeys == true and mainIsPole == true and not testMode and not hiddenByPlayer
