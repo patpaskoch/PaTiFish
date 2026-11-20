@@ -30,6 +30,7 @@ L.EQUIP_WEAPONS_TIP = "Legt die Waffen von vor der Angel wieder an."
 L.NO_WEAPONS_TIP = "Noch keine Waffen gemerkt: lege sie einmal selbst an."
 L.GEAR_NONE_TIP = "Keine Angel in den Taschen."
 L.BIND_GEAR = "Angel an / Waffen zurück"
+L.MINIMAP_DRAG_TIP = "Rechte Maustaste oder Umschalt + linke Maustaste halten: Knopf an der Minimap verschieben."
 
 -- Catch list
 L.NO_CATCHES = "Noch nichts gefangen."

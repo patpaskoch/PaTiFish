@@ -29,6 +29,9 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
   die Angel an, die Leiste erscheint unten in der Mitte
 - [ ] PT-FISH-004 Nochmal Minimap-Knopf (oder „Waffen“ in der Leiste): deine Waffen von vorher sind wieder in der
   Hand (auch Schild/Nebenhand), die Leiste verschwindet; Tooltip des Knopfs sagt jeweils, was er tut
+- [ ] PT-FISH-014 Minimap-Knopf mit gedrückter rechter Maustaste ziehen, und ebenso mit Umschalt + linker Maustaste: er
+  wandert am Rand der Minimap mit und bleibt nach `/reload` dort; dabei wechselt nichts (keine Angel/Waffen); normaler
+  Linksklick wechselt weiter; im Kampf lässt er sich nicht verschieben
 - [ ] PT-FISH-005 Leiste verschieben, `/reload`: sie steht wieder dort; Einstellungen → Minimap-Knopf aus → Knopf weg
 
 ## Angeln

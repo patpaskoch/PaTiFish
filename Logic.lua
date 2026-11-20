@@ -224,6 +224,14 @@ function Logic.MinimapOffset(angle, radius)
     return math.cos(rad) * radius, math.sin(rad) * radius
 end
 
+-- Angle in degrees (0–360, 0 = right, 90 = top) of a point dx, dy from the minimap centre; the default for no offset.
+function Logic.AngleTo(dx, dy)
+    if type(dx) ~= "number" or type(dy) ~= "number" or (dx == 0 and dy == 0) then return Logic.MINIMAP_ANGLE end
+    local angle = math.deg(math.atan2(dy, dx))
+    if angle < 0 then angle = angle + 360 end
+    return angle
+end
+
 -- The bar shows while the pole is in the hand (owner 2026-11-20), in test mode, and never while the player hid it
 -- with /pfish hide until the pole changes again.
 function Logic.BarShown(mainIsPole, testMode, hiddenByPlayer)

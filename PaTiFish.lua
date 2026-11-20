@@ -166,8 +166,12 @@ local minimapButton = CreateFrame("Button", "PaTiFishMinimap", Minimap, "SecureA
 minimapButton:SetSize(MINIMAP_SIZE, MINIMAP_SIZE)
 minimapButton:SetFrameStrata("MEDIUM")
 minimapButton:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-minimapButton:RegisterForClicks("AnyUp", "AnyDown")
+-- Left click: pole on / weapons back. Right button or Shift + left button held: drag the button along the minimap
+-- edge (owner 2026-11-20). Shift + left click does nothing ("shift-type1" empty), so a drag never swaps gear.
+minimapButton:RegisterForClicks("LeftButtonUp", "LeftButtonDown")
 minimapButton:SetAttribute("type", "macro")
+minimapButton:SetAttribute("shift-type1", "")
+minimapButton:RegisterForDrag("LeftButton", "RightButton")
 minimapButton:SetHighlightTexture([[Interface\Minimap\UI-Minimap-ZoomButton-Highlight]])
 local minimapIcon = minimapButton:CreateTexture(nil, "BACKGROUND")
 minimapIcon:SetSize(MINIMAP_ICON, MINIMAP_ICON)
@@ -567,8 +571,29 @@ UI.SetTooltip(gear, gearTooltip)
 UI.SetTooltip(minimapButton, function()
     local lines = gearTooltip()
     lines[1] = "PaTiFish: " .. lines[1]
+    lines[#lines + 1] = L.MINIMAP_DRAG_TIP
     return lines
 end)
+
+-- Dragging (right button): the angle follows the cursor; out of combat only (a secure button cannot move in combat).
+local function placeMinimapButton()
+    minimapButton:ClearAllPoints()
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", Logic.MinimapOffset(DB.minimapAngle, MINIMAP_RADIUS))
+end
+minimapButton:SetScript("OnDragStart", function(self, button)
+    if InCombatLockdown() or not DB then return end
+    if button == "LeftButton" and not IsShiftKeyDown() then return end
+    GameTooltip:Hide()
+    self:SetScript("OnUpdate", function()
+        if InCombatLockdown() then self:SetScript("OnUpdate", nil) return end
+        local x, y = GetCursorPosition()
+        local scale = Minimap:GetEffectiveScale()
+        local mx, my = Minimap:GetCenter()
+        DB.minimapAngle = Logic.AngleTo(x / scale - mx, y / scale - my)
+        placeMinimapButton()
+    end)
+end)
+minimapButton:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
 UI.SetTooltip(catchesButton, function() return { L.CATCHES, L.CATCHES_TIP } end)
 
 -- Events ---------------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ Format: `## [Unreleased]` / `## [x.y.z] - YYYY-MM-DD` with Added, Changed, Fixed
 ## [Unreleased] — 0.1.0
 ### Added
 - New addon PaTiFish (owner wish 2026-11-20): a simple fishing helper. One click = one action, nothing automatic.
-- Minimap button: one click puts the fishing pole on (the weapons in your hands are remembered), the next one puts
+- Minimap button (drag it along the minimap edge with the right mouse button, or Shift + left button, held): one click puts the fishing pole on (the weapons in your hands are remembered), the next one puts
   those weapons back on. Bar button "Weapons" does the same back.
 - Bar (bottom centre, movable, shown while the pole is in your hands): fishing skill, lure time left, a cast bar,
   buttons Cast, Lure (your best lure onto the pole), Catches and Weapons. Key bindings for Cast, Lure and the
