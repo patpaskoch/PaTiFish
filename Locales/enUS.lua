@@ -30,6 +30,11 @@ L.EQUIP_WEAPONS_TIP = "Puts the weapons from before the pole back on."
 L.NO_WEAPONS_TIP = "No weapons remembered yet: equip them once yourself."
 L.GEAR_NONE_TIP = "No fishing pole in your bags."
 L.BIND_GEAR = "Pole on / weapons back"
+L.ARROW_UP = "Key: arrow up (while the pole is in your hands)"
+L.ARROW_RIGHT = "Key: arrow right (while the pole is in your hands)"
+L.ARROW_LEFT = "Key: arrow left (while the pole is in your hands)"
+L.ARROW_DOWN = "Key: arrow down (while the pole is in your hands)"
+L.ARROW_KEYS = "Arrow keys while the pole is in your hands: up cast, right lure, left catches, down weapons (no walking with the arrows then)"
 L.MINIMAP_DRAG_TIP = "Right button or Shift + left button held: move this button anywhere."
 
 -- Catch list

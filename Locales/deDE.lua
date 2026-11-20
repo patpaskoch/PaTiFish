@@ -30,6 +30,11 @@ L.EQUIP_WEAPONS_TIP = "Legt die Waffen von vor der Angel wieder an."
 L.NO_WEAPONS_TIP = "Noch keine Waffen gemerkt: lege sie einmal selbst an."
 L.GEAR_NONE_TIP = "Keine Angel in den Taschen."
 L.BIND_GEAR = "Angel an / Waffen zurück"
+L.ARROW_UP = "Taste: Pfeil hoch (solange die Angel in der Hand ist)"
+L.ARROW_RIGHT = "Taste: Pfeil rechts (solange die Angel in der Hand ist)"
+L.ARROW_LEFT = "Taste: Pfeil links (solange die Angel in der Hand ist)"
+L.ARROW_DOWN = "Taste: Pfeil runter (solange die Angel in der Hand ist)"
+L.ARROW_KEYS = "Pfeiltasten, solange die Angel in der Hand ist: hoch Auswerfen, rechts Köder, links Fänge, runter Waffen (Laufen mit den Pfeilen geht dann nicht)"
 L.MINIMAP_DRAG_TIP = "Rechte Maustaste oder Umschalt + linke Maustaste halten: Knopf beliebig verschieben."
 
 -- Catch list

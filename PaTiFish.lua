@@ -173,7 +173,13 @@ top = top + UI.Sizes.ButtonHeight + GAP
 local lure = secureButton("PaTiFishLure", "APPLY_LURE", THIRD)
 lure:SetPoint("TOPLEFT", PAD, -top)
 lure:SetAttribute("type", "macro")
-local catchesButton = UI.CreateButton(content, "CATCHES", THIRD, function() Catches.Toggle(testMode) end)
+local catchesButton = UI.CreateButton(content, "CATCHES", THIRD, function()
+    if not DB then return end
+    DB.showCatches = not DB.showCatches
+    Catches.Show(DB.showCatches, testMode)
+end)
+-- A global name: the LEFT arrow key clicks it in fishing mode (SetOverrideBindingClick needs one).
+G.PaTiFishCatchesButton = catchesButton
 catchesButton:SetPoint("TOPLEFT", PAD + THIRD + GAP, -top)
 local gear = secureButton("PaTiFishGear", "EQUIP_WEAPONS", THIRD)
 gear:SetPoint("TOPLEFT", PAD + 2 * (THIRD + GAP), -top)
@@ -229,12 +235,28 @@ flash:Hide()
 local castStart, castEnd   -- seconds (GetTime) of the running cast, nil when none
 local lastCastEnd          -- when the last cast stopped (sound restore timer)
 local pendingButtons = false
+local applyArrowKeys -- defined below (needs the buttons); called from applyButtons
 local hiddenByPlayer = false -- /pfish hide: the bar stays hidden until the pole changes
 local lastPole              -- mainIsPole of the last applyButtons
 local gearMode             -- "POLE" | "WEAPONS" | nil (what the gear button does now)
 local bestLure
 
 local TEST = { skill = { rank = 75, modifier = 25, max = 150 }, lure = 510, castShare = 0.6, castLeft = 12 }
+
+-- Arrow keys in fishing mode (owner-approved 2026-11-20, AGENTS.md): temporary override bindings owned by the bar —
+-- never saved, cleared as soon as the pole leaves the hand, the player hides the bar or turns the setting off.
+-- Up = cast, right = lure, left = catches, down = weapons back. Out of combat only (bindings are protected).
+local arrowsOn = false
+applyArrowKeys = function(mainIsPole)
+    if InCombatLockdown() or not SetOverrideBindingClick then return end
+    local want = Logic.ArrowKeysOn(DB, mainIsPole, testMode, hiddenByPlayer)
+    if want == arrowsOn then return end
+    ClearOverrideBindings(window)
+    if want then
+        for key, button in pairs(Logic.ARROW_KEYS) do SetOverrideBindingClick(window, false, key, button) end
+    end
+    arrowsOn = want
+end
 
 -- Secure attributes: spell, lure macro, gear macro. Out of combat only; in combat they wait for the end.
 local function applyButtons()
@@ -258,7 +280,8 @@ local function applyButtons()
     -- The bar follows the pole: shown with it, hidden without it (a /pfish hide lasts until the pole changes).
     if current.mainIsPole ~= lastPole then hiddenByPlayer, lastPole = false, current.mainIsPole end
     window:SetShown(Logic.BarShown(current.mainIsPole, testMode, hiddenByPlayer))
-    if not window:IsShown() then Catches.Hide() end
+    Catches.Show(window:IsShown() and DB.showCatches, testMode)
+    applyArrowKeys(current.mainIsPole)
 end
 
 -- Just before the pole goes on: remember the weapons in the hands (PreClick runs before the secure action).
@@ -316,6 +339,7 @@ end
 local function refresh()
     if not DB then return end
     window:ApplyOpacity()
+    Catches.ApplyOpacity()
     Catches.Refresh(testMode)
     content:SetShown(not DB.collapsed)
     window:SetHeight(UI.Sizes.HeaderHeight + (DB.collapsed and 0 or CONTENT_HEIGHT + PAD))
@@ -446,6 +470,13 @@ local function buildSettings()
             DB.minimapButton = on; refresh()
         end,
     }))
+    modal:AddControls(UI.CreateCheckbox(modal, "ARROW_KEYS", {
+        get = function() return DB.arrowKeys end,
+        set = function(on)
+            if InCombatLockdown() then say("COMBAT_LOCKED") return end
+            DB.arrowKeys = on; refresh()
+        end,
+    }))
     modal:AddControls(UI.CreateCheckbox(modal, "FLASH_WARNING", {
         get = function() return DB.flashWarning end,
         set = function(on) DB.flashWarning = on; refresh() end,
@@ -490,7 +521,8 @@ local function setShown(shown, quiet)
     end
     hiddenByPlayer = not shown
     window:SetShown(shown)
-    if not shown then Catches.Hide() end
+    Catches.Show(shown and DB.showCatches, testMode)
+    applyArrowKeys(readGear().mainIsPole)
     if not shown and not quiet then say("HIDDEN_HINT") end
     return true
 end
@@ -578,10 +610,11 @@ window:SetMenu(function()
     }
 end)
 
-UI.SetTooltip(cast, function() return { L.CAST, L.CAST_TIP } end)
+local function keyLine(key) return DB and DB.arrowKeys and L["ARROW_" .. key] or nil end
+UI.SetTooltip(cast, function() return { L.CAST, L.CAST_TIP, keyLine("UP") } end)
 UI.SetTooltip(lure, function()
-    if not bestLure then return { L.APPLY_LURE, L.APPLY_LURE_NONE } end
-    return { L.APPLY_LURE, L.APPLY_LURE_TIP:format(bestLure.bonus) }
+    if not bestLure then return { L.APPLY_LURE, L.APPLY_LURE_NONE, keyLine("RIGHT") } end
+    return { L.APPLY_LURE, L.APPLY_LURE_TIP:format(bestLure.bonus), keyLine("RIGHT") }
 end)
 local function gearTooltip()
     if not InCombatLockdown() then applyButtons() end -- the bags may have changed since the last event
@@ -590,7 +623,11 @@ local function gearTooltip()
     if readGear().mainIsPole then return { L.EQUIP_WEAPONS, L.NO_WEAPONS_TIP } end
     return { L.EQUIP_POLE, L.GEAR_NONE_TIP }
 end
-UI.SetTooltip(gear, gearTooltip)
+UI.SetTooltip(gear, function()
+    local lines = gearTooltip()
+    lines[#lines + 1] = keyLine("DOWN")
+    return lines
+end)
 UI.SetTooltip(minimapButton, function()
     local lines = gearTooltip()
     lines[1] = "PaTiFish: " .. lines[1]
@@ -617,7 +654,7 @@ minimapButton:SetScript("OnDragStart", function(self, button)
     end)
 end)
 minimapButton:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
-UI.SetTooltip(catchesButton, function() return { L.CATCHES, L.CATCHES_TIP } end)
+UI.SetTooltip(catchesButton, function() return { L.CATCHES, L.CATCHES_TIP, keyLine("LEFT") } end)
 
 -- Events ---------------------------------------------------------------------------------------------------------
 
@@ -637,7 +674,7 @@ events:SetScript("OnEvent", function(_, event, unit, _, spellID)
         UI.SetLanguage(DB.language)
         window:Attach(DB, 0, -250) -- first start: bottom centre (owner 2026-11-20)
         window:SetScale(DB.scale)
-        Catches.Init(window, function() return DB end)
+        Catches.Init(function() return DB end, function() DB.showCatches = false end)
         refresh()
         return
     end

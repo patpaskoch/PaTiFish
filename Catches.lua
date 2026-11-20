@@ -9,8 +9,8 @@ local WIDTH, PAD, LINE, ICON = 210, UI.Spacing.MD, 18, 16
 local MAX_ROWS = 15
 local getDB -- function → PaTiFishDB (set by Init)
 
--- Its own window, but no own position or settings: it hangs left of the bar and reads the bar's look (theme,
--- opacity) from PaTiFishDB; locked, so its header never drags it away.
+-- Its own window at the left screen edge (owner 2026-11-20), movable; its position lives in PaTiFishDB.catchWindow,
+-- everything else (look, lock) is read from PaTiFishDB itself.
 local window = UI.CreateWindow("PaTiFishCatches", "CATCHES", WIDTH, 80)
 window:Hide()
 local rows = {}
@@ -78,22 +78,28 @@ function Catches.Refresh(testMode)
     window:SetHeight(UI.Sizes.HeaderHeight + 2 * UI.Spacing.SM + (shown + extra) * LINE)
 end
 
-function Catches.Toggle(testMode)
-    window:SetShown(not window:IsShown())
+-- Shown with the bar when the player wants it (DB.showCatches, default on).
+function Catches.Show(shown, testMode)
+    window:SetShown(shown)
     Catches.Refresh(testMode)
 end
 
 function Catches.Hide() window:Hide() end
 
--- bar: the main window; db: function returning PaTiFishDB. Called on PLAYER_LOGIN.
-function Catches.Init(bar, db)
+function Catches.ApplyOpacity() window:ApplyOpacity() end
+
+-- db: function returning PaTiFishDB. Called on PLAYER_LOGIN. onClose: the player closed the list (its own circle).
+function Catches.Init(db, onClose)
     getDB = db
-    window.db = setmetatable({ locked = true }, { __index = function(_, key) return getDB()[key] end })
+    -- Reads go to PaTiFishDB (look, lock), writes of the position stay in catchWindow. No ApplyTheme here: the theme
+    -- is the addon's one, set by the bar.
+    window.db = setmetatable(getDB().catchWindow, { __index = getDB() })
+    local point, relativePoint, x, y = UI.WindowPosition(window.db, Logic.CATCH_X, Logic.CATCH_Y)
     window:ClearAllPoints()
-    window:SetPoint("TOPRIGHT", bar, "TOPLEFT", -UI.Spacing.SM, 0)
-    window:ApplyTheme()
+    window:SetPoint(point, UIParent, relativePoint, x, y)
+    window:KeepTopSoon()
     window:ApplyOpacity()
-    window:SetMenu(function() return { { text = "CLOSE", onClick = function() window:Hide() end } } end)
+    window:SetMenu(function() return { { text = "HIDE", onClick = function() window:Hide(); onClose() end } } end)
 end
 
 -- Loot ------------------------------------------------------------------------------------------------------------

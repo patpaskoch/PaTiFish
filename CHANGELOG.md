@@ -10,7 +10,11 @@ Format: `## [Unreleased]` / `## [x.y.z] - YYYY-MM-DD` with Added, Changed, Fixed
 - Bar (bottom centre, movable, shown while the pole is in your hands): fishing skill, lure time left, a cast bar,
   buttons Cast, Lure (your best lure onto the pole), Catches and Weapons. Key bindings for Cast, Lure and the
   minimap button (Key Bindings > PaTiFish).
-- Catch list left of the bar: everything you fished so far with its count (kept per character).
+- Catch list: everything you fished so far with its count (kept per character). Its own window at the left screen
+  edge (movable), open by default while the bar shows; "Catches" or its red circle closes it.
+- Arrow keys while the pole is in your hands (setting, default on): up = cast, right = lure, left = catches,
+  down = weapons back. Temporary bindings only, gone when the weapons are back; walking with the arrows is not
+  possible meanwhile.
 - Louder splash while fishing: effects 100 %, music and ambience off; your volumes come back 15 s after the last cast
   (and on the next login if the game closed while fishing).
 - The frame flashes in the last 3 seconds of a cast. Hint for WoW's "Interact with Target" key; setting for "Soft

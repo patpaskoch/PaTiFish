@@ -39,6 +39,33 @@ describe("Logic.Migrate", function()
     end)
 end)
 
+describe("Catch list and arrow keys (owner 2026-11-20)", function()
+    it("the catch list starts shown at the left screen edge; a moved list keeps its place", function()
+        local Logic = load()
+        local db = Logic.Migrate(nil)
+        assert.is_true(db.showCatches)
+        assert.same({ "LEFT", "LEFT", 20, 120 }, { db.catchWindow.point, db.catchWindow.relativePoint,
+            db.catchWindow.x, db.catchWindow.y })
+        local moved = Logic.Migrate({ showCatches = false, catchWindow = { point = "TOPLEFT", relativePoint = "BOTTOMLEFT",
+            x = 300, y = 500 } })
+        assert.is_false(moved.showCatches)
+        assert.same({ "TOPLEFT", 300 }, { moved.catchWindow.point, moved.catchWindow.x })
+    end)
+
+    it("arrow keys only with the pole in the hand, the setting on, not in test mode, not after /pfish hide", function()
+        local Logic = load()
+        local db = Logic.Migrate(nil)
+        assert.is_true(Logic.ArrowKeysOn(db, true, false, false))
+        assert.is_false(Logic.ArrowKeysOn(db, false, false, false))
+        assert.is_false(Logic.ArrowKeysOn(db, true, true, false))
+        assert.is_false(Logic.ArrowKeysOn(db, true, false, true))
+        db.arrowKeys = false
+        assert.is_false(Logic.ArrowKeysOn(db, true, false, false))
+        assert.same({ UP = "PaTiFishCast", RIGHT = "PaTiFishLure", LEFT = "PaTiFishCatchesButton",
+            DOWN = "PaTiFishGear" }, Logic.ARROW_KEYS)
+    end)
+end)
+
 describe("Lures", function()
     it("picks the best lure in the bags and builds its macro", function()
         local Logic = load()

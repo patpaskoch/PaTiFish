@@ -35,6 +35,12 @@ Logic.LURES = {
 Logic.SOUND_CVARS = { "Sound_SFXVolume", "Sound_MusicVolume", "Sound_AmbienceVolume" }
 Logic.SOUND_BOOST = { Sound_SFXVolume = "1", Sound_MusicVolume = "0", Sound_AmbienceVolume = "0" }
 
+-- The catch list at the left screen edge, a little above the middle.
+Logic.CATCH_X, Logic.CATCH_Y = 20, 120
+-- Arrow keys while the pole is in the hand (owner 2026-11-20): key → global button name it clicks.
+Logic.ARROW_KEYS = { UP = "PaTiFishCast", RIGHT = "PaTiFishLure", LEFT = "PaTiFishCatchesButton",
+    DOWN = "PaTiFishGear" }
+
 -- Position (point, relativePoint, x, y) is written by the PaTiShared window, not listed here.
 Logic.DEFAULTS = {
     opacity = 0.75,
@@ -45,6 +51,8 @@ Logic.DEFAULTS = {
     language = "auto",
     loudSplash = true,
     flashWarning = true,
+    showCatches = true, -- the catch list opens with the bar (owner 2026-11-20)
+    arrowKeys = true,   -- arrow keys click the bar buttons while the pole is in the hand (owner 2026-11-20)
 }
 
 local function itemId(value)
@@ -77,13 +85,18 @@ function Logic.Migrate(db)
     if type(db.scale) ~= "number" or db.scale < 0.5 or db.scale > 2 then db.scale = Logic.DEFAULTS.scale end
     local knownTheme = { default = true, woforever = true, dracula = true, softfantasy = true }
     if not knownTheme[db.theme] then db.theme = "default" end
-    for _, key in ipairs({ "locked", "collapsed", "loudSplash", "flashWarning" }) do
+    for _, key in ipairs({ "locked", "collapsed", "loudSplash", "flashWarning", "showCatches", "arrowKeys" }) do
         if type(db[key]) ~= "boolean" then db[key] = Logic.DEFAULTS[key] end
     end
     db.soundBackup = Logic.CleanBackup(db.soundBackup)
     db.weapons = Logic.CleanWeapons(db.weapons)
     db.catches = Logic.CleanCatches(db.catches)
-    if type(db.catchWindow) ~= "table" then db.catchWindow = {} end -- position of the catch list (PaTiShared)
+    -- Position of the catch list (PaTiShared window); first start: the left screen edge (owner 2026-11-20).
+    if type(db.catchWindow) ~= "table" then db.catchWindow = {} end
+    if db.catchWindow.point == nil then
+        db.catchWindow.point, db.catchWindow.relativePoint = "LEFT", "LEFT"
+        db.catchWindow.x, db.catchWindow.y = Logic.CATCH_X, Logic.CATCH_Y
+    end
     if type(db.minimapAngle) ~= "number" or db.minimapAngle ~= db.minimapAngle then
         db.minimapAngle = Logic.MINIMAP_ANGLE
     end
@@ -252,6 +265,11 @@ function Logic.AngleTo(dx, dy)
     local angle = math.deg(math.atan2(dy, dx))
     if angle < 0 then angle = angle + 360 end
     return angle
+end
+
+-- Arrow keys are taken only in fishing mode (pole in the hand, bar not hidden by the player), never in test mode.
+function Logic.ArrowKeysOn(db, mainIsPole, testMode, hiddenByPlayer)
+    return db.arrowKeys == true and mainIsPole == true and not testMode and not hiddenByPlayer
 end
 
 -- The bar shows while the pole is in the hand (owner 2026-11-20), in test mode, and never while the player hid it

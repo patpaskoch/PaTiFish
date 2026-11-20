@@ -13,6 +13,10 @@ Addon facts: `../../PaTiAdmin/docs/ARCHITECTURE.md` · open issues: `../../PaTiA
   (PaTiShared, synced — never edit).
 - Secure buttons (changed only out of combat): `PaTiFishCast` (type spell, Fishing), `PaTiFishLure` (macro
   `/use item:<lure>` + `/use 16`), `PaTiFishGear` (macro `/equip` the pole, or the saved weapons back).
+- Arrow keys (owner-approved 2026-11-20, exception to the "never bind keys" rule): while the pole is in the hand,
+  `SetOverrideBindingClick` on the bar binds Up = `PaTiFishCast`, Right = `PaTiFishLure`, Left =
+  `PaTiFishCatchesButton`, Down = `PaTiFishGear`. Override bindings only (never saved, no SaveBindings), set and
+  cleared out of combat, cleared when the pole leaves the hand, the bar is hidden or the setting is off.
 - Sound: while fishing (setting "Louder splash") effects go to 100 %, music and ambience to 0; the player's values are
   saved in `DB.soundBackup` first and restored 15 s after the last cast and on the next login.
 - SavedVariables: `PaTiFishDB` (per character), schema 1 — see `Logic.DEFAULTS`; plus `soundBackup` (cvar → string)

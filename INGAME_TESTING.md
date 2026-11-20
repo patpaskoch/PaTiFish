@@ -49,6 +49,14 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
   funktionieren
 
 ## Fänge
+- [ ] PT-FISH-016 Angel anlegen: die Fang-Liste ist gleich offen, am linken Bildschirmrand; verschieben → bleibt nach
+  `/reload` dort; „Fänge“ oder ihr roter Kreis schließt sie, sie bleibt dann auch beim nächsten Angeln zu, bis du
+  „Fänge“ wieder drückst
+
+## Pfeiltasten
+- [ ] PT-FISH-017 Angel in der Hand: Pfeil hoch = Auswerfen, rechts = Köder, links = Fänge auf/zu, runter = Waffen
+  zurück; danach laufen die Pfeiltasten wieder normal (Figur bewegt sich); Einstellungen → Pfeiltasten aus → die
+  Pfeile bewegen wieder die Figur, auch mit Angel; Tastenbelegung im WoW-Menü bleibt unverändert
 
 - [ ] PT-FISH-012 Fisch fangen → „Fänge“ zeigt ihn mit Anzahl; mehr fangen → Zahl steigt, meiste oben; bleibt nach
   `/reload`; volle Tasche (Fisch bleibt liegen) zählt nicht
