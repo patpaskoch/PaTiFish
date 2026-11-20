@@ -1,0 +1,15 @@
+## Interface: 16001
+## Title: PaTiFish
+## Notes: Simple fishing helper - cast, lure, pole/weapons swap, catch list, louder splash
+## Notes-deDE: Einfacher Angel-Helfer - Auswerfen, Köder, Angel/Waffen wechseln, Fang-Liste, lauteres Platschen
+## Author: PaTi
+## Version: 0.1.0
+## IconTexture: Interface\AddOns\PaTiFish\Media\icon
+## SavedVariablesPerCharacter: PaTiFishDB
+
+Shared\Shared.xml
+Locales\enUS.lua
+Locales\deDE.lua
+Logic.lua
+Catches.lua
+PaTiFish.lua

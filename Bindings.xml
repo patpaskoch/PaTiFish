@@ -1,0 +1,6 @@
+<Bindings>
+    <!-- Shown under "PaTiFish" in WoW's key binding menu. PaTiFish never binds a key by itself. -->
+    <Binding name="CLICK PaTiFishCast:LeftButton" header="PATIFISH" category="BINDING_HEADER_PATIFISH"/>
+    <Binding name="CLICK PaTiFishLure:LeftButton" category="BINDING_HEADER_PATIFISH"/>
+    <Binding name="CLICK PaTiFishMinimap:LeftButton" category="BINDING_HEADER_PATIFISH"/>
+</Bindings>
