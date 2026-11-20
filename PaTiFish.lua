@@ -45,10 +45,31 @@ local function readSkill()
     return Logic.FindSkill(entries, fishingName())
 end
 
+-- A fishing pole: one of the known poles, or item class Weapon / subclass Fishing Pole (owner 2026-11-20: a pole in
+-- the bags was not found — the class check alone is not trusted in this client).
+-- The client's name for the item subclass "Fishing Pole" (e.g. "Angelruten"), if it can tell.
+local function poleSubclassName()
+    local info = (C_Item and C_Item.GetItemSubClassInfo) or GetItemSubClassInfo
+    local name = info and info(Logic.POLE_CLASS, Logic.POLE_SUBCLASS)
+    return type(name) == "string" and not isSecret(name) and name or nil
+end
+
 local function isPole(itemID)
-    if type(itemID) ~= "number" or not GetItemInfoInstant then return false end
-    local _, _, _, _, _, classID, subclassID = GetItemInfoInstant(itemID)
-    return classID == Logic.POLE_CLASS and subclassID == Logic.POLE_SUBCLASS
+    if type(itemID) ~= "number" then return false end
+    if Logic.KNOWN_POLES[itemID] then return true end
+    if not GetItemInfoInstant then return false end
+    local _, _, subType, _, _, classID, subclassID = GetItemInfoInstant(itemID)
+    if classID == Logic.POLE_CLASS and subclassID == Logic.POLE_SUBCLASS then return true end
+    local poleName = poleSubclassName()
+    return poleName ~= nil and subType == poleName
+end
+
+-- /pfish debug: what the client says about an item (to see why a pole is or is not recognised).
+local function itemFacts(itemID)
+    if type(itemID) ~= "number" or not GetItemInfoInstant then return tostring(itemID) end
+    local _, itemType, subType, equipLoc, _, classID, subclassID = GetItemInfoInstant(itemID)
+    return ("%d (%s/%s, class %s/%s, %s)"):format(itemID, tostring(itemType), tostring(subType), tostring(classID),
+        tostring(subclassID), tostring(equipLoc))
 end
 
 local function bagSlots(bag)
@@ -160,7 +181,7 @@ gear:SetAttribute("type", "macro")
 top = top + UI.Sizes.ButtonHeight + GAP
 
 -- Minimap button (owner 2026-11-20): one click puts the pole on, the next one the weapons from before back on.
--- Secure (the same macro as the gear button); position on the minimap edge from DB.minimapAngle.
+-- Secure (the same macro as the gear button); placed by DB.minimapX/Y (dragged anywhere), first on the minimap edge.
 local MINIMAP_SIZE, MINIMAP_ICON, MINIMAP_BORDER, MINIMAP_RADIUS = 31, 20, 53, 80
 local minimapButton = CreateFrame("Button", "PaTiFishMinimap", Minimap, "SecureActionButtonTemplate")
 minimapButton:SetSize(MINIMAP_SIZE, MINIMAP_SIZE)
@@ -233,7 +254,7 @@ local function applyButtons()
     minimapButton:SetAttribute("macrotext", macro)
     minimapButton:SetShown(DB.minimapButton)
     minimapButton:ClearAllPoints()
-    minimapButton:SetPoint("CENTER", Minimap, "CENTER", Logic.MinimapOffset(DB.minimapAngle, MINIMAP_RADIUS))
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", Logic.MinimapPosition(DB, MINIMAP_RADIUS))
     -- The bar follows the pole: shown with it, hidden without it (a /pfish hide lasts until the pole changes).
     if current.mainIsPole ~= lastPole then hiddenByPlayer, lastPole = false, current.mainIsPole end
     window:SetShown(Logic.BarShown(current.mainIsPole, testMode, hiddenByPlayer))
@@ -499,6 +520,7 @@ local function printDebug()
             GetLocale()),
         ("Fishing spell %s · skill %s"):format(tostring(fishingName()),
             skill and ("%d+%d/%d"):format(skill.rank, skill.modifier, skill.max) or "none"),
+        ("Main hand %s · pole subclass name %s"):format(itemFacts(current.main), tostring(poleSubclassName())),
         ("Main hand %s (pole %s) · off hand %s · pole in bags %s · saved weapons %s"):format(tostring(current.main),
             tostring(current.mainIsPole), tostring(current.off), tostring(current.bagPole),
             DB.weapons and ("%s/%s"):format(tostring(DB.weapons.main), tostring(DB.weapons.off)) or "none"),
@@ -562,6 +584,7 @@ UI.SetTooltip(lure, function()
     return { L.APPLY_LURE, L.APPLY_LURE_TIP:format(bestLure.bonus) }
 end)
 local function gearTooltip()
+    if not InCombatLockdown() then applyButtons() end -- the bags may have changed since the last event
     if gearMode == "WEAPONS" then return { L.EQUIP_WEAPONS, L.EQUIP_WEAPONS_TIP } end
     if gearMode == "POLE" then return { L.EQUIP_POLE, L.EQUIP_POLE_TIP } end
     if readGear().mainIsPole then return { L.EQUIP_WEAPONS, L.NO_WEAPONS_TIP } end
@@ -578,7 +601,7 @@ end)
 -- Dragging (right button): the angle follows the cursor; out of combat only (a secure button cannot move in combat).
 local function placeMinimapButton()
     minimapButton:ClearAllPoints()
-    minimapButton:SetPoint("CENTER", Minimap, "CENTER", Logic.MinimapOffset(DB.minimapAngle, MINIMAP_RADIUS))
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", Logic.MinimapPosition(DB, MINIMAP_RADIUS))
 end
 minimapButton:SetScript("OnDragStart", function(self, button)
     if InCombatLockdown() or not DB then return end
@@ -589,7 +612,7 @@ minimapButton:SetScript("OnDragStart", function(self, button)
         local x, y = GetCursorPosition()
         local scale = Minimap:GetEffectiveScale()
         local mx, my = Minimap:GetCenter()
-        DB.minimapAngle = Logic.AngleTo(x / scale - mx, y / scale - my)
+        DB.minimapX, DB.minimapY = Logic.ClampOffset(x / scale - mx), Logic.ClampOffset(y / scale - my)
         placeMinimapButton()
     end)
 end)
@@ -599,7 +622,8 @@ UI.SetTooltip(catchesButton, function() return { L.CATCHES, L.CATCHES_TIP } end)
 -- Events ---------------------------------------------------------------------------------------------------------
 
 local events = CreateFrame("Frame")
-for _, event in ipairs({ "PLAYER_LOGIN", "SKILL_LINES_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED",
+for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "SKILL_LINES_CHANGED", "BAG_UPDATE_DELAYED",
+    "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED",
     "UNIT_INVENTORY_CHANGED", "PLAYER_REGEN_ENABLED", "UPDATE_BINDINGS", "UNIT_SPELLCAST_CHANNEL_START",
     "UNIT_SPELLCAST_CHANNEL_STOP" }) do
     events:RegisterEvent(event)

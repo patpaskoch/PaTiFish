@@ -30,7 +30,7 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
 - [ ] PT-FISH-004 Nochmal Minimap-Knopf (oder „Waffen“ in der Leiste): deine Waffen von vorher sind wieder in der
   Hand (auch Schild/Nebenhand), die Leiste verschwindet; Tooltip des Knopfs sagt jeweils, was er tut
 - [ ] PT-FISH-014 Minimap-Knopf mit gedrückter rechter Maustaste ziehen, und ebenso mit Umschalt + linker Maustaste: er
-  wandert am Rand der Minimap mit und bleibt nach `/reload` dort; dabei wechselt nichts (keine Angel/Waffen); normaler
+  lässt sich überall hin ziehen (auch weg von der Minimap) und bleibt nach `/reload` dort; dabei wechselt nichts (keine Angel/Waffen); normaler
   Linksklick wechselt weiter; im Kampf lässt er sich nicht verschieben
 - [ ] PT-FISH-005 Leiste verschieben, `/reload`: sie steht wieder dort; Einstellungen → Minimap-Knopf aus → Knopf weg
 
@@ -57,3 +57,15 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
 
 - [ ] PT-FISH-013 `/pfish diagnose`, auswerfen, auf Biss warten, einholen: im Chat stehen die Ereignisse mit Zeit; bitte
   den Chat-Ausschnitt an Claude schicken (zeigt, ob WoW den Biss meldet)
+
+## Angel erkennen (2026-11-20)
+
+- [ ] PT-FISH-015 Angel erkennen (Owner 2026-11-20: „sagt, ich habe keine Angel in den Taschen“): Angel angelegt →
+  die Leiste erscheint, Tooltip des Minimap-Knopfs „Waffen“; Angel in der Tasche → Tooltip „Angel an“, Klick legt sie
+  an; bei Problemen bitte die Ausgabe von `/pfish debug` schicken (Zeile „Main hand …“)
+  - ❌ FAIL 2026-11-20
+  - Owner: Tooltip meldete „Keine Angel in den Taschen“, obwohl die Angel angelegt war (also auch in der Hand nicht
+    erkannt).
+  - 🔧 FIX IMPLEMENTED 2026-11-20 (bekannte Angeln per Item-Nummer, Untertyp-Name als dritte Prüfung, Taschen beim
+    Drüberfahren neu gelesen; `/pfish debug` zeigt Klasse/Unterklasse der Waffe)
+  - MANUAL RETEST REQUIRED

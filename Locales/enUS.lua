@@ -30,7 +30,7 @@ L.EQUIP_WEAPONS_TIP = "Puts the weapons from before the pole back on."
 L.NO_WEAPONS_TIP = "No weapons remembered yet: equip them once yourself."
 L.GEAR_NONE_TIP = "No fishing pole in your bags."
 L.BIND_GEAR = "Pole on / weapons back"
-L.MINIMAP_DRAG_TIP = "Right button or Shift + left button held: move this button around the minimap."
+L.MINIMAP_DRAG_TIP = "Right button or Shift + left button held: move this button anywhere."
 
 -- Catch list
 L.NO_CATCHES = "Nothing caught yet."

@@ -11,7 +11,9 @@ Logic.FISHING_SPELL = 7620
 Logic.FISHING_SPELLS = { [7620] = true, [7731] = true, [7732] = true, [18248] = true } -- all ranks
 -- Weapon slots: the fishing pole goes into the main hand and holds the lure.
 Logic.MAIN_HAND, Logic.OFF_HAND = 16, 17
--- Fishing poles: item class Weapon (2), subclass Fishing Pole (20).
+-- Fishing poles: the known Classic poles by item ID, else item class Weapon (2), subclass Fishing Pole (20).
+Logic.KNOWN_POLES = { [6256] = true, [6365] = true, [6366] = true, [6367] = true, [12225] = true, [19022] = true,
+    [19970] = true, [25978] = true }
 Logic.POLE_CLASS, Logic.POLE_SUBCLASS = 2, 20
 -- The last seconds of a cast: the frame flashes, time to cast again (owner 2026-11-20).
 Logic.WARN_SECONDS = 3
@@ -86,6 +88,12 @@ function Logic.Migrate(db)
         db.minimapAngle = Logic.MINIMAP_ANGLE
     end
     if type(db.minimapButton) ~= "boolean" then db.minimapButton = true end
+    if type(db.minimapX) ~= "number" or type(db.minimapY) ~= "number" or db.minimapX ~= db.minimapX
+        or db.minimapY ~= db.minimapY then
+        db.minimapX, db.minimapY = nil, nil
+    else
+        db.minimapX, db.minimapY = Logic.ClampOffset(db.minimapX), Logic.ClampOffset(db.minimapY)
+    end
     db.schema = Logic.SCHEMA
     return db
 end
@@ -222,6 +230,20 @@ function Logic.MinimapOffset(angle, radius)
     if type(angle) ~= "number" or angle ~= angle then angle = Logic.MINIMAP_ANGLE end
     local rad = math.rad(angle)
     return math.cos(rad) * radius, math.sin(rad) * radius
+end
+
+-- A dragged offset from the minimap centre, kept on a sane range (far enough for any screen; SetClampedToScreen
+-- is not used for the button).
+Logic.MAX_OFFSET = 2000
+function Logic.ClampOffset(value)
+    if type(value) ~= "number" or value ~= value then return 0 end
+    return math.max(-Logic.MAX_OFFSET, math.min(Logic.MAX_OFFSET, value))
+end
+
+-- Where the minimap button sits: the dragged offset, else on the minimap edge at minimapAngle.
+function Logic.MinimapPosition(db, radius)
+    if type(db.minimapX) == "number" and type(db.minimapY) == "number" then return db.minimapX, db.minimapY end
+    return Logic.MinimapOffset(db.minimapAngle, radius)
 end
 
 -- Angle in degrees (0–360, 0 = right, 90 = top) of a point dx, dy from the minimap centre; the default for no offset.
