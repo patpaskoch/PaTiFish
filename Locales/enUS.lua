@@ -48,7 +48,8 @@ L.LOCK_WINDOW = "Lock window"
 L.FISHING = "Fishing"
 L.LOUD_SPLASH = "Louder splash while fishing (effects up, music and ambience off)"
 L.MINIMAP_BUTTON = "Minimap button (pole on / weapons back)"
-L.FLASH_WARNING = "Flash the frame when the cast is about to end"
+L.FLASH_WARNING = "Flash the frame when the cast is about to end (also in PaTiAlerts)"
+L.ALERT_CAST_ENDING = "Fishing cast ends – cast again"
 L.SOFT_INTERACT = "Soft interact: the Interact key finds the bobber (WoW setting)"
 
 -- Chat

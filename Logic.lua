@@ -183,6 +183,15 @@ function Logic.CastState(now, start, finish)
     return remaining, share, remaining <= Logic.WARN_SECONDS
 end
 
+-- The cast-ending alarm for PaTiAlerts (owner 2026-11-21): the same moment the frame flashes, as one WARNING row.
+-- warn/remaining: from Logic.CastState; enabled: the "flash" setting; text: localized row text.
+-- Returns the complete list for PaTiAlertsAPI.Sync("PaTiFish", list): one alert or none.
+function Logic.CastAlerts(warn, remaining, enabled, text)
+    if not warn or not enabled or type(remaining) ~= "number" or type(text) ~= "string" then return {} end
+    return { { id = "cast-ending", kind = "castEnding", priority = "WARNING", text = text,
+        detail = ("%d s"):format(math.ceil(remaining)) } }
+end
+
 -- Sound while fishing. current: { [cvar] = value } as read now. Returns the backup to keep (the player's values) and
 -- the values to set. An existing backup is kept (a second cast must not save the boosted values as the player's).
 function Logic.SoundPlan(current, backup)

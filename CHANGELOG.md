@@ -19,6 +19,9 @@ Format: `## [Unreleased]` / `## [x.y.z] - YYYY-MM-DD` with Added, Changed, Fixed
   (and on the next login if the game closed while fishing).
 - The frame flashes in the last 3 seconds of a cast. Hint for WoW's "Interact with Target" key; setting for "Soft
   interact" so that key finds the bobber.
+- The cast-ending alarm also appears in PaTiAlerts (owner 2026-11-21): a yellow row "Fishing cast ends – cast
+  again" with the seconds left, gone when the cast ends. Same setting as the flashing frame; only if PaTiAlerts is
+  installed.
 - `/pfish diagnose`: lists the events of one cast, to find out whether this client reports the bite.
 ### Fixed
 - A fishing pole in the bags was not found (owner 2026-11-20): known poles are recognised by item ID too, and the bags
