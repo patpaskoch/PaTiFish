@@ -337,6 +337,20 @@ local function paintTexts()
     else hint:SetText(L.REEL_KEY:format(key)) end
 end
 
+-- Cast-ending alarm also in PaTiAlerts (owner 2026-11-21), only if it is installed (AGENTS.md §3 exception).
+-- Synced only when the row changes (appears, next whole second, gone), not every frame.
+local sentAlert = "" -- detail of the row PaTiAlerts shows now, "" for none
+
+local function reportAlert(warn, remaining)
+    local api = _G.PaTiAlertsAPI
+    if type(api) ~= "table" or api.version ~= 1 or type(api.Sync) ~= "function" then return end
+    local list = Logic.CastAlerts(warn and not testMode, remaining, DB and DB.flashWarning, L.ALERT_CAST_ENDING)
+    local shown = list[1] and list[1].detail or ""
+    if shown == sentAlert then return end
+    sentAlert = shown
+    pcall(api.Sync, "PaTiFish", list) -- bad data never breaks fishing
+end
+
 local function paintCast(now)
     local remaining, share, warn
     if testMode then
@@ -344,6 +358,7 @@ local function paintCast(now)
     else
         remaining, share, warn = Logic.CastState(now, castStart, castEnd)
     end
+    reportAlert(warn, remaining)
     castBar:SetValue(share or 0)
     castBar:SetStatusBarColor(UI.Color(warn and "Warning" or "Accent"))
     local flashing = warn and DB and DB.flashWarning and not DB.collapsed

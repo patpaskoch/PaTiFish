@@ -164,6 +164,16 @@ describe("Skill, time and cast", function()
         assert.same({ 0, 0, true }, { Logic.CastState(125, 100, 120) })
         assert.is_nil(Logic.CastState(110, nil, 120))
     end)
+
+    it("cast-ending alarm for PaTiAlerts: one WARNING row in the last seconds, none otherwise", function()
+        local Logic = load()
+        assert.same({ { id = "cast-ending", kind = "castEnding", priority = "WARNING", text = "ends", detail = "3 s" } },
+            Logic.CastAlerts(true, 2.4, true, "ends"))
+        assert.equal("1 s", Logic.CastAlerts(true, 0.2, true, "ends")[1].detail)
+        assert.same({}, Logic.CastAlerts(false, 10, true, "ends"))
+        assert.same({}, Logic.CastAlerts(true, 2, false, "ends")) -- flash setting off: no alarm anywhere
+        assert.same({}, Logic.CastAlerts(true, nil, true, "ends")) -- no cast
+    end)
 end)
 
 describe("Sound while fishing", function()

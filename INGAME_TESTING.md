@@ -47,6 +47,11 @@ Regeln und Eintragen von Ergebnissen: [PaTiAdmin/docs/TESTING.md](https://github
   „Weiches Interagieren“ an: beim Platschen Taste drücken → Fisch wird eingeholt, ohne den Schwimmer anzuklicken
 - [ ] PT-FISH-011 Tastenbelegung > PaTiFish: Auswerfen, Köder und „Angel an / Waffen zurück“ lassen sich belegen und
   funktionieren
+- [ ] PT-FISH-018 Mit PaTiAlerts (2026-11-21): auswerfen und nicht einholen → in den letzten 3 Sekunden erscheint in
+  PaTiAlerts „Angel läuft gleich aus – neu auswerfen“ (gelb, Quelle PaTiFish) mit 3 s / 2 s / 1 s; Wurf endet oder
+  Fisch eingeholt → Zeile weg; neu auswerfen → kommt beim nächsten Ablauf wieder
+- [ ] PT-FISH-019 Einstellung „Rahmen blinkt …“ aus → auch in PaTiAlerts keine Zeile; `/pfish test` → nichts in
+  PaTiAlerts; ohne PaTiAlerts angeln → kein Lua-Fehler
 
 ## Fänge
 - [ ] PT-FISH-016 Angel anlegen: die Fang-Liste ist gleich offen, am linken Bildschirmrand; verschieben → bleibt nach

@@ -17,6 +17,9 @@ Addon facts: `../../PaTiAdmin/docs/ARCHITECTURE.md` · open issues: `../../PaTiA
   `SetOverrideBindingClick` on the bar binds Up = `PaTiFishCast`, Right = `PaTiFishLure`, Left =
   `PaTiFishCatchesButton`, Down = `PaTiFishGear`. Override bindings only (never saved, no SaveBindings), set and
   cleared out of combat, cleared when the pole leaves the hand, the bar is hidden or the setting is off.
+- PaTiAlerts (owner 2026-11-21): the cast-ending alarm (same moment and setting as the flashing frame) is sent as
+  one WARNING row via `PaTiAlertsAPI.Sync("PaTiFish", list)` — only if PaTiAlerts exists (PaTiAdmin AGENTS.md §3),
+  synced only when the row changes, cleared when the cast ends; never in test mode.
 - Sound: while fishing (setting "Louder splash") effects go to 100 %, music and ambience to 0; the player's values are
   saved in `DB.soundBackup` first and restored 15 s after the last cast and on the next login.
 - SavedVariables: `PaTiFishDB` (per character), schema 1 — see `Logic.DEFAULTS`; plus `soundBackup` (cvar → string)

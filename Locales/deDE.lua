@@ -48,7 +48,8 @@ L.LOCK_WINDOW = "Fenster sperren"
 L.FISHING = "Angeln"
 L.LOUD_SPLASH = "Lauteres Platschen beim Angeln (Effekte laut, Musik und Umgebung aus)"
 L.MINIMAP_BUTTON = "Knopf an der Minimap (Angel an / Waffen zurück)"
-L.FLASH_WARNING = "Rahmen blinkt, wenn die Angel gleich ausläuft"
+L.FLASH_WARNING = "Rahmen blinkt, wenn die Angel gleich ausläuft (auch in PaTiAlerts)"
+L.ALERT_CAST_ENDING = "Angel läuft gleich aus – neu auswerfen"
 L.SOFT_INTERACT = "Weiches Interagieren: die Interagieren-Taste findet den Schwimmer (WoW-Einstellung)"
 
 -- Chat
